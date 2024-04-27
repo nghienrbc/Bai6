@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask layerMaskGround; 
     private bool isGrounded =false; // kiem tra xem player co dang dung tren ground hay khong
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmos() // vẽ vòng tròn từ tâm của vị trí groundcheck trên player, tương ứng với Physics2D.OverlapCircle
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(groundCheck.transform.position, radius);
@@ -30,48 +30,31 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GetInput();
-    }
-    void GetInput()
-    {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical"); 
-    }
+    } 
+
     bool GroundCheck()
     {
         Collider2D hit = Physics2D.OverlapCircle(groundCheck.transform.position, radius, layerMaskGround);
-        if(hit != null) { 
-            Debug.Log("chạm");
-            return true;
-        }
+        if(hit != null) return true; 
         return false;
     }
     private void FixedUpdate()
     {   
-        isGrounded = GroundCheck();
         rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
-
-        // If the player should jump...
+        isGrounded = GroundCheck();
+        // Kiểm tra xem nếu player đang đứng dưới ground và người chơi nhấn phím W
         if (isGrounded && Input.GetKey(KeyCode.W))
-        {
-            Debug.Log("nhay");
+        { 
             // Add a vertical force to the player.
             isGrounded = false;
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
         } 
 
-        // If the input is moving the player right and the player is facing left...
-        if (horizontalInput > 0 && !m_FacingRight)
-        {
-            // ... flip the player.
-            Flip();
-        }
-        // Otherwise if the input is moving the player left and the player is facing right...
-        else if (horizontalInput < 0 && m_FacingRight)
-        {
-            // ... flip the player.
-            Flip();
-        }
+        // điểu khiển player quay sang trái hoặc sang phải theo chiều nhấn 
+        if (horizontalInput > 0 && !m_FacingRight)  Flip(); 
+        else if (horizontalInput < 0 && m_FacingRight)  Flip(); 
     }
 
 
