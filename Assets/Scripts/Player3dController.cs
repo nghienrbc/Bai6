@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Player3dController : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float moveSpeed = 2f;
+    [SerializeField] float runSpeed = 5f;
     [SerializeField] float rotationSpeed = 5f;
 
     public Animator animator;
@@ -23,21 +24,19 @@ public class Player3dController : MonoBehaviour
         float moveAmount = Mathf.Clamp01(Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput));
         var moveDirection = (new Vector3(horizontalInput, 0, verticalInput)).normalized;
 
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && moveDirection != Vector3.zero)
         {
             moveAmount += 1;
+            transform.position += moveDirection * runSpeed * Time.deltaTime;
         }
-        animator.SetFloat("Speed", moveAmount, 0.25f, Time.deltaTime);
+        else transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        animator.SetFloat("Speed", moveAmount);
 
         if (moveDirection != Vector3.zero)
         {
             Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed*Time.deltaTime);
-            //transform.forward = moveDirection;
-        }
-
-    }
-
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed*Time.deltaTime); 
+        } 
+    } 
 }
