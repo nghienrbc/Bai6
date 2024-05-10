@@ -9,10 +9,11 @@ public class Player3dController : MonoBehaviour
     [SerializeField] float rotationSpeed = 5f;
 
     public Animator animator;
-    //CharacterController characterController;
+    CharacterController characterController;
     // Start is called before the first frame update
     void Start()
-    { 
+    {
+        characterController = GetComponent<CharacterController>();
     }
 
     // Update is called once per frame
@@ -21,17 +22,22 @@ public class Player3dController : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        float moveAmount = Mathf.Clamp01(Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput));
         var moveDirection = (new Vector3(horizontalInput, 0, verticalInput)).normalized;
 
+        float moveAmount = Mathf.Clamp01(Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput));
 
         if (Input.GetKey(KeyCode.LeftShift) && moveDirection != Vector3.zero)
         {
             moveAmount += 1;
-            transform.position += moveDirection * runSpeed * Time.deltaTime;
+            characterController.Move(moveDirection * runSpeed * Time.deltaTime);
+            //transform.position += moveDirection * runSpeed * Time.deltaTime;
         }
-        else transform.position += moveDirection * moveSpeed * Time.deltaTime;
-        animator.SetFloat("Speed", moveAmount);
+        else
+        {
+            characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
+            //transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        }
+            animator.SetFloat("Speed", moveAmount);
 
         if (moveDirection != Vector3.zero)
         {
