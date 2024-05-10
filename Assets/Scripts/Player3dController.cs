@@ -8,6 +8,9 @@ public class Player3dController : MonoBehaviour
     [SerializeField] float runSpeed = 5f;
     [SerializeField] float rotationSpeed = 5f;
 
+    public float jumpSpeed = 5f;
+    float verlocityY;
+
     public Animator animator;
     CharacterController characterController;
     // Start is called before the first frame update
@@ -25,24 +28,40 @@ public class Player3dController : MonoBehaviour
         var moveDirection = (new Vector3(horizontalInput, 0, verticalInput)).normalized;
 
         float moveAmount = Mathf.Clamp01(Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput));
+        float characterMoveSpeed = moveSpeed;
 
         if (Input.GetKey(KeyCode.LeftShift) && moveDirection != Vector3.zero)
         {
             moveAmount += 1;
-            characterController.Move(moveDirection * runSpeed * Time.deltaTime);
-            //transform.position += moveDirection * runSpeed * Time.deltaTime;
+            characterMoveSpeed = runSpeed;
         }
-        else
+
+        verlocityY += Physics.gravity.y * Time.deltaTime;
+        if (characterController.isGrounded)
         {
-            characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
-            //transform.position += moveDirection * moveSpeed * Time.deltaTime;
+            verlocityY = -0.2f;
+            if (Input.GetButtonDown("Jump"))
+            {
+            verlocityY = jumpSpeed;
+            }
         }
-            animator.SetFloat("Speed", moveAmount);
+
+        Vector3 velocity = moveDirection * moveAmount * characterMoveSpeed;
+        velocity.y = verlocityY;
+
+        characterController.Move(velocity * Time.deltaTime);
+        animator.SetFloat("Speed", moveAmount, 0.05f, Time.deltaTime);
 
         if (moveDirection != Vector3.zero)
         {
             Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed*Time.deltaTime); 
-        } 
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            animator.SetTrigger("Attack");
+        }
+         
     } 
 }
