@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,10 +13,18 @@ public class Player3dController : MonoBehaviour
 
     public Animator animator;
     CharacterController characterController;
+
+    public GameObject attackVFX; // Kéo hiệu ứng VFX vào đây từ Inspector
+    public float vfxDuration = 2f; // Thời gian hiển thị của VFX
     // Start is called before the first frame update
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        // Đảm bảo rằng VFX ban đầu là tắt đi
+        if (attackVFX != null)
+        {
+            attackVFX.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -61,7 +69,26 @@ public class Player3dController : MonoBehaviour
         if (Input.GetButtonDown("Fire1"))
         {
             animator.SetTrigger("Attack");
+            // Hiển thị VFX
+            if (attackVFX != null)
+            {
+                attackVFX.SetActive(true);
+                // Khởi động Coroutine để tắt VFX sau một khoảng thời gian
+                StartCoroutine(TurnOffVFXAfterDuration());
+            }
+
         }
          
-    } 
+    }
+    // Coroutine để tắt VFX sau một khoảng thời gian
+    private IEnumerator TurnOffVFXAfterDuration()
+    {
+        // Chờ một khoảng thời gian nhất định
+        yield return new WaitForSeconds(vfxDuration);
+        // Tắt VFX
+        if (attackVFX != null)
+        {
+            attackVFX.SetActive(false);
+        }
+    }
 }
